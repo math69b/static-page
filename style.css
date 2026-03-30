@@ -431,3 +431,31 @@ body {
   .post-card    { flex-direction: column; gap: 12px; }
   .post-meta    { align-items: flex-start; flex-direction: row; gap: 12px; }
 }
+
+/* ── HERO ROTATIVO ───────────────────────────────────────── */
+.hero-rotate {
+  display: inline-flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 1.1em;
+  vertical-align: bottom;
+}
+
+.hero-rotate span {
+  animation: heroSlide 10s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  line-height: 1.1em;
+}
+
+@keyframes heroSlide {
+  0%        { transform: translateY(0%); }
+  18%       { transform: translateY(0%); }
+  20%       { transform: translateY(-100%); }
+  38%       { transform: translateY(-100%); }
+  40%       { transform: translateY(-200%); }
+  58%       { transform: translateY(-200%); }
+  60%       { transform: translateY(-300%); }
+  78%       { transform: translateY(-300%); }
+  80%       { transform: translateY(-400%); }
+  98%       { transform: translateY(-400%); }
+  100%      { transform: translateY(0%); }
+}
