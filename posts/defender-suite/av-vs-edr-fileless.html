@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AV vs. EDR: Por que um Ataque Fileless Passou pelo Defender e Foi Bloqueado pelo MDE — Andrew Lobo</title>
+  <link rel="stylesheet" href="../../style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    .post-page { max-width: 760px; margin: 0 auto; padding: 48px 32px 100px; }
+
+    .post-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 12px;
+      letter-spacing: 0.05em;
+      margin-bottom: 48px;
+      border: 1px solid var(--border);
+      padding: 8px 16px;
+      border-radius: 6px;
+      transition: border-color 220ms, color 220ms;
+    }
+    .post-back:hover { border-color: var(--accent); color: var(--accent); }
+
+    .post-tag-line {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .post-tag-label {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(0,229,255,.08);
+      border: 1px solid rgba(0,229,255,.2);
+      padding: 3px 10px;
+      border-radius: 100px;
+    }
+    .post-date-label { font-size: 12px; color: var(--text-dim); }
+
+    .post-h1 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(28px, 5vw, 44px);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 24px;
+    }
+
+    .post-mitre-line {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-mitre-badge {
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent2);
+      background: rgba(255,77,109,.07);
+      border: 1px solid rgba(255,77,109,.2);
+      padding: 3px 10px;
+      border-radius: 4px;
+    }
+
+    .post-content { line-height: 1.9; }
+    .post-content h2 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 22px;
+      color: var(--text);
+      margin: 56px 0 16px;
+      letter-spacing: -0.01em;
+    }
+    .post-content h3 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 16px;
+      color: var(--text);
+      margin: 32px 0 12px;
+    }
+    .post-content p { color: var(--text-dim); margin-bottom: 16px; }
+    .post-content ul, .post-content ol {
+      color: var(--text-dim);
+      margin: 0 0 16px 20px;
+    }
+    .post-content li { margin-bottom: 6px; }
+    .post-content strong { color: var(--text); font-weight: 600; }
+    .post-content a { color: var(--accent); }
+
+    .post-content pre {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 20px 24px;
+      overflow-x: auto;
+      margin: 24px 0;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #000000;
+    }
+    .post-content code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--accent);
+    }
+    .post-content pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      color: inherit;
+    }
+
+    blockquote {
+      border-left: 3px solid var(--accent);
+      padding-left: 20px;
+      margin: 24px 0;
+      color: var(--text-dim);
+      font-style: italic;
+    }
+
+    /* Comparison table */
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 28px 0;
+      font-size: 13px;
+    }
+    .compare-table th {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 12px 16px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      text-align: left;
+    }
+    .compare-table td {
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      vertical-align: top;
+    }
+    .compare-table tr:hover td { background: var(--surface2); }
+    .tag-red   { color: #ff4d6d; font-weight: 500; }
+    .tag-green { color: #4ade80; font-weight: 500; }
+
+    /* Screenshot placeholder */
+    .screenshot-slot {
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      margin: 28px 0;
+      background: var(--surface);
+    }
+    .screenshot-label {
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-family: 'JetBrains Mono', monospace;
+      margin-bottom: 8px;
+      display: block;
+    }
+    .screenshot-desc {
+      font-size: 12px;
+      color: var(--text-dim);
+      line-height: 1.7;
+      margin: 0;
+    }
+
+    /* Result boxes */
+    .result-box {
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin: 28px 0;
+      border: 1px solid;
+    }
+    .result-box.success {
+      background: rgba(74, 222, 128, 0.05);
+      border-color: rgba(74, 222, 128, 0.25);
+    }
+    .result-box.blocked {
+      background: rgba(255, 77, 109, 0.05);
+      border-color: rgba(255, 77, 109, 0.25);
+    }
+    .result-box-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .result-box.success .result-box-title { color: #4ade80; }
+    .result-box.blocked .result-box-title  { color: #ff4d6d; }
+    .result-box p { margin: 0; font-size: 13px; color: var(--text-dim); }
+
+    /* Section marker */
+    .section-divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 52px 0 4px;
+    }
+    .section-divider span {
+      color: var(--accent);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .section-divider::before,
+    .section-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    @media (max-width: 640px) {
+      .post-page { padding: 32px 20px 64px; }
+      .compare-table { font-size: 11px; }
+      .compare-table th, .compare-table td { padding: 8px 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-bracket">[</span>
+        <span class="logo-name">Andrew Lobo</span>
+        <span class="logo-bracket">]</span>
+        <span class="logo-tag">// security blog</span>
+      </div>
+      <nav class="header-nav">
+        <a href="../../index.html" class="nav-link">Home</a>
+        <a href="https://github.com/math69b" target="_blank" class="nav-link">GitHub ↗</a>
+        <a href="../../sobre.html" class="nav-link">Sobre</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="post-page">
+
+    <a class="post-back" href="../../index.html#defender-suite">← voltar para Defender Suite</a>
+
+    <div class="post-tag-line">
+      <span class="post-tag-label">Purple Team</span>
+      <span class="post-date-label">05 de abril de 2026</span>
+    </div>
+
+    <h1 class="post-h1">AV vs. EDR: Por que um Ataque Fileless Passou pelo Defender e Foi Bloqueado pelo MDE</h1>
+
+    <div class="post-mitre-line">
+      <span class="post-mitre-badge">T1059.001</span>
+      <span class="post-mitre-badge">T1620</span>
+      <span class="post-mitre-badge">T1027</span>
+      <span class="post-mitre-badge">T1055</span>
+    </div>
+
+    <article class="post-content">
+
+      <p>
+        Boa parte das organizações ainda opera com a mentalidade de que ter o <strong>Windows Defender ativado</strong> é suficiente para proteger endpoints. Este post vai mostrar, com evidências de laboratório, por que essa premissa está errada — e mais importante, o que um <strong>EDR como o Microsoft Defender for Endpoint (MDE)</strong> faz de diferente.
+      </p>
+      <p>
+        O teste foi direto: executar a mesma cadeia de ataque em dois hosts Windows 11. Um com apenas o Defender padrão. Outro com o MDE onboard, integrado ao Defender XDR. O resultado foi completamente oposto nos dois casos.
+      </p>
+
+      <div class="section-divider"><span>// contexto</span></div>
+      <h2>O que é um Ataque Fileless?</h2>
+
+      <p>
+        Um ataque <em>fileless</em> é aquele que <strong>não grava arquivos executáveis em disco</strong>. Em vez de dropar um <code>.exe</code> e executá-lo — padrão que qualquer antivírus detecta por assinatura — o payload vive inteiramente na memória do processo.
+      </p>
+      <p>
+        O vetor mais comum é o PowerShell: já está presente em qualquer Windows, é confiável pelo sistema operacional, e permite carregar código arbitrário na memória. Para o antivírus tradicional, isso é praticamente invisível. Não há arquivo para escanear. Não há hash para comparar com uma base de assinaturas. A ameaça simplesmente não existe no modelo de detecção para o qual ele foi projetado.
+      </p>
+
+      <blockquote>
+        Antivírus foi desenhado para um mundo onde malware vivia em disco. O Red Team moderno vive na memória.
+      </blockquote>
+
+      <div class="section-divider"><span>// arquitetura</span></div>
+      <h2>A Diferença Fundamental: Assinatura vs. Comportamento</h2>
+
+      <p>
+        Antes de ver os resultados do lab, é importante entender o que cada solução realmente faz — e onde cada uma para de funcionar.
+      </p>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Capacidade</th>
+            <th>Windows Defender (AV)</th>
+            <th>Defender for Endpoint (EDR)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Detecção por assinatura</td>
+            <td class="tag-green">✓ Sim</td>
+            <td class="tag-green">✓ Sim</td>
+          </tr>
+          <tr>
+            <td>Análise comportamental em tempo real</td>
+            <td class="tag-red">✗ Limitado</td>
+            <td class="tag-green">✓ Sim (sensor de kernel)</td>
+          </tr>
+          <tr>
+            <td>Monitoramento de memória (RW→RX)</td>
+            <td class="tag-red">✗ Não</td>
+            <td class="tag-green">✓ Sim (TiSense)</td>
+          </tr>
+          <tr>
+            <td>AMSI com análise semântica</td>
+            <td class="tag-red">Básico</td>
+            <td class="tag-green">✓ Avançado (reconhece intenção)</td>
+          </tr>
+          <tr>
+            <td>Visibilidade de chamadas de API (ETW)</td>
+            <td class="tag-red">✗ Não</td>
+            <td class="tag-green">✓ Sim</td>
+          </tr>
+          <tr>
+            <td>Correlação de eventos (XDR)</td>
+            <td class="tag-red">✗ Não</td>
+            <td class="tag-green">✓ Sim (Defender XDR)</td>
+          </tr>
+          <tr>
+            <td>Resposta automatizada (AIR)</td>
+            <td class="tag-red">✗ Não</td>
+            <td class="tag-green">✓ Sim</td>
+          </tr>
+          <tr>
+            <td>Hunting com KQL</td>
+            <td class="tag-red">✗ Não</td>
+            <td class="tag-green">✓ Sim (Advanced Hunting)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>
+        O ponto central está no <strong>monitoramento comportamental de memória e de chamadas de API</strong>. O AV tradicional atua principalmente no sistema de arquivos. O EDR tem um sensor instalado no kernel que observa o comportamento do processo em tempo de execução — incluindo como ele usa memória, quais APIs chama, e em qual sequência.
+      </p>
+
+      <div class="section-divider"><span>// lab</span></div>
+      <h2>O Laboratório: Mesma Ameaça, Dois Resultados</h2>
+
+      <h3>Ambiente de Teste</h3>
+      <ul>
+        <li><strong>Host A:</strong> Windows 11, Windows Defender ativado, sem MDE onboard</li>
+        <li><strong>Host B:</strong> Windows 11, MDE onboard, integrado ao Defender XDR</li>
+        <li><strong>Ataque:</strong> Shellcode carregado via PowerShell diretamente na memória, sem tocar o disco</li>
+        <li><strong>Framework de C2:</strong> Sliver (listener mTLS)</li>
+      </ul>
+
+      <h3>Visão Geral da Cadeia de Ataque</h3>
+      <p>
+        Sem entrar em detalhes que tornariam este post um manual de ataque, a cadeia seguiu os seguintes passos lógicos:
+      </p>
+      <ol>
+        <li>Download do payload criptografado diretamente para a memória via PowerShell — sem gravação em disco</li>
+        <li>Decodificação do payload em memória</li>
+        <li>Alocação de uma região de memória com permissão de leitura/escrita (<code>RW</code>)</li>
+        <li>Cópia do shellcode decodificado para essa região</li>
+        <li>Mudança de permissão da região para execução (<code>RW → RX</code>)</li>
+        <li>Execução do shellcode via callback de API legítima do Windows</li>
+      </ol>
+      <p>
+        A <strong>etapa 5</strong> é o ponto crítico para qualquer EDR. A transição de uma página de memória de <code>RW</code> para <code>RX</code> contendo shellcode desconhecido é um dos principais <strong>Indicadores de Comprometimento (IoC) comportamentais</strong> monitorados por sensores de kernel modernos.
+      </p>
+
+      <div class="section-divider"><span>// resultado A</span></div>
+      <h2>Host A — Windows Defender (AV Padrão)</h2>
+
+      <div class="result-box success">
+        <div class="result-box-title">⚠ Resultado: Ataque Bem-Sucedido</div>
+        <p>Sessão C2 estabelecida. O beacon conectou ao servidor de comando e controle sem nenhuma detecção ou alerta gerado pelo Defender.</p>
+      </div>
+
+      <p>
+        Nenhum alerta. Nenhum bloqueio. O processo <code>powershell.exe</code> executou normalmente e a sessão do C2 foi estabelecida com sucesso.
+      </p>
+      <p>
+        O motivo é simples: o Defender não possuía assinatura para o payload criptografado, não há arquivo em disco para escanear, e ele não tem visibilidade sobre a transição de permissão de memória realizada via <code>VirtualProtect</code>.
+      </p>
+
+      <div class="screenshot-slot">
+        <span class="screenshot-label">📸 Print sugerido #1 — Sessão C2 ativa</span>
+        <p class="screenshot-desc">
+          Terminal do PowerShell no Host A após a execução — sem nenhum bloqueio ou notificação do Defender. Mostre também o console do Sliver com a sessão ativa confirmando a conexão estabelecida. Esse é o "antes" da história: ataque funcionou, sistema não viu nada.
+        </p>
+      </div>
+
+      <div class="section-divider"><span>// resultado B</span></div>
+      <h2>Host B — Microsoft Defender for Endpoint (EDR)</h2>
+
+      <div class="result-box blocked">
+        <div class="result-box-title">🛡 Resultado: Ataque Bloqueado</div>
+        <p>Duas detecções em camadas distintas foram geradas antes de qualquer execução do shellcode. O processo foi encerrado pelo MDE antes de estabelecer conexão com o C2.</p>
+      </div>
+
+      <p>
+        Com o MDE, o ataque não passou da fase inicial. Duas camadas de detecção agiram de forma independente:
+      </p>
+
+      <h3>Detecção 1 — AMSI com Análise Semântica</h3>
+      <p>
+        O MDE não trata o AMSI como um scanner de assinatura simples. Ele analisa o <em>bloco de script completo</em>, mesmo que strings estejam fragmentadas ou ofuscadas, e avalia a <strong>intenção lógica</strong> do código — não apenas a aparência textual dele.
+      </p>
+      <ul>
+        <li><strong>Ameaça detectada:</strong> <code>Trojan:PowerShell/AmsiFragBypass.E</code></li>
+        <li><strong>Causa:</strong> O sensor reconheceu o padrão de acesso a propriedades internas do namespace <code>System.Management.Automation</code> usadas para desabilitar o AMSI, independentemente de qualquer ofuscação aplicada.</li>
+      </ul>
+
+      <div class="screenshot-slot">
+        <span class="screenshot-label">📸 Print sugerido #2 — Alerta no console do MDE</span>
+        <p class="screenshot-desc">
+          Console do MDE em <code>security.microsoft.com</code> → Incidents &amp; Alerts → alerta com o nome <code>Trojan:PowerShell/AmsiFragBypass.E</code>. Destaque o severity, o processo envolvido (<code>powershell.exe</code>) e o timestamp. Esse print mostra que o EDR detectou a intenção do script, não uma assinatura de arquivo.
+        </p>
+      </div>
+
+      <h3>Detecção 2 — Monitoramento Comportamental de Memória</h3>
+      <p>
+        Mesmo que a primeira camada fosse contornada, o sensor de kernel do MDE monitora chamadas a APIs críticas como <code>VirtualAlloc</code> e <code>VirtualProtect</code>. Quando o <code>powershell.exe</code> tentou modificar permissões de memória em regiões associadas a DLLs de segurança do sistema, o sensor interveio imediatamente.
+      </p>
+      <ul>
+        <li><strong>Ameaças detectadas:</strong> <code>Behavior:Win32/AMSI_Patch.C</code> e <code>Behavior:Win32/AMSI_Patch_T.B12</code></li>
+        <li><strong>Causa:</strong> Tentativa de <em>tampering</em> em regiões de memória restritas — comportamento característico de técnicas de evasão de EDR que tentam desabilitar sensores em tempo de execução.</li>
+      </ul>
+
+      <div class="screenshot-slot">
+        <span class="screenshot-label">📸 Print sugerido #3 — Process tree no alert detail</span>
+        <p class="screenshot-desc">
+          Alert detail no MDE mostrando <code>Behavior:Win32/AMSI_Patch.C</code> — destaque para a seção <strong>Process tree</strong> que exibe <code>powershell.exe</code> como processo pai e a linha de comando executada. Este é o print mais poderoso do post: ele demonstra visualmente que o EDR enxerga o comportamento interno do processo, não apenas o arquivo.
+        </p>
+      </div>
+
+      <div class="screenshot-slot">
+        <span class="screenshot-label">📸 Print sugerido #4 — Device Timeline</span>
+        <p class="screenshot-desc">
+          Device page no MDE → aba <strong>Timeline</strong> — mostrando a sequência de eventos: execução do PowerShell → chamadas de VirtualAlloc/VirtualProtect → detecção → processo encerrado. Esse print demonstra a profundidade de telemetria que o EDR oferece: você vê cada passo do ataque reconstruído em ordem cronológica.
+        </p>
+      </div>
+
+      <div class="section-divider"><span>// blue team</span></div>
+      <h2>Hunting com KQL no Defender XDR</h2>
+
+      <p>
+        Além de bloquear o ataque, o MDE deixa rastros completos que permitem hunting proativo em toda a organização. A query abaixo correlaciona processos do PowerShell fazendo conexões externas com detecções do AMSI — exatamente o padrão observado no lab:
+      </p>
+
+      <pre><code>// Hunting: PowerShell staging externo + detecção de bypass de AMSI
+DeviceNetworkEvents
+| where InitiatingProcessFileName =~ "powershell.exe"
+| where RemoteIPType == "Public"
+| join kind=inner (
+    DeviceEvents
+    | where ActionType == "AntivirusDetection"
+    | where AdditionalFields has_any (
+        "AmsiFragBypass",
+        "AMSI_Patch",
+        "Fileless"
+    )
+) on DeviceId, InitiatingProcessId
+| project
+    Timestamp,
+    DeviceName,
+    InitiatingProcessCommandLine,
+    RemoteIP,
+    RemotePort,
+    ActionType,
+    AdditionalFields
+| sort by Timestamp desc</code></pre>
+
+      <div class="screenshot-slot">
+        <span class="screenshot-label">📸 Print sugerido #5 — Advanced Hunting com resultado</span>
+        <p class="screenshot-desc">
+          Advanced Hunting no Defender XDR com o resultado da query acima — mostre as colunas DeviceName, RemoteIP e ActionType preenchidas com os dados reais do lab. Esse print fecha o loop do post: detectamos, bloqueamos, e conseguimos caçar o padrão.
+        </p>
+      </div>
+
+      <div class="section-divider"><span>// conclusão</span></div>
+      <h2>Conclusão</h2>
+
+      <p>
+        A diferença entre um AV e um EDR não é de <em>quantidade</em> de features — é de <strong>modelo de detecção</strong> completamente diferente.
+      </p>
+      <p>
+        O Defender padrão opera em um modelo <strong>reativo e baseado em assinatura</strong>: ele precisa conhecer o artefato para detectá-lo. Um payload criptografado, carregado puramente na memória, simplesmente não existe para ele.
+      </p>
+      <p>
+        O MDE opera em um modelo <strong>comportamental e contextual</strong>: ele não precisa conhecer o payload. Ele observa o que o processo <em>faz</em> — como usa memória, quais APIs chama, em qual sequência — e identifica o padrão malicioso antes que o dano seja causado.
+      </p>
+      <p>
+        Para times defendendo ambientes Microsoft: o onboarding do MDE não é um custo adicional, é a linha que separa <em>"fomos comprometidos e não sabemos"</em> de <em>"tentaram comprometer e nós vimos em tempo real"</em>.
+      </p>
+
+      <blockquote>
+        Um AV te protege do malware de 2015. Um EDR te dá visibilidade do Red Team de hoje.
+      </blockquote>
+
+    </article>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <span class="footer-text">Andrew Lobo · Security Blog · <script>document.write(new Date().getFullYear())</script></span>
+      <span class="footer-stack">Microsoft Ecosystem · LATAM</span>
+    </div>
+  </footer>
+
+</body>
+</html>

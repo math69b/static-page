@@ -2,32 +2,13 @@
   "posts": [
 
     {
-      "title":   "Conditional Access: construindo políticas sem quebrar o ambiente",
-      "date":    "2025-03-10",
-      "tag":     "Entra ID",
-      "excerpt": "Como projetar e testar políticas de Conditional Access em modo report-only antes de enforcar, evitando lockout de usuários críticos.",
-      "mitre":   ["T1078", "T1556.006"],
-      "url":     "posts/defender-suite/conditional-access-sem-quebrar.html"
-    },
-
-    {
-      "title":   "PIM Just-in-Time: reduzindo exposição de contas privilegiadas",
-      "date":    "2025-02-18",
-      "tag":     "Entra ID",
-      "excerpt": "Configurando Privileged Identity Management para ativar roles privilegiadas apenas quando necessário, com aprovação e justificativa obrigatória.",
-      "mitre":   ["T1078.004"],
-      "url":     "posts/defender-suite/pim-just-in-time.html"
-    },
-
-    {
-      "title":   "Investigando logins suspeitos com o Sign-in Logs do Entra ID",
-      "date":    "2025-01-30",
-      "tag":     "Entra ID",
-      "excerpt": "Walkthrough de investigação de um alerta de impossible travel usando os logs nativos do Entra ID e KQL no Sentinel.",
-      "mitre":   ["T1078", "T1110"],
-      "url":     "posts/defender-suite/investigando-logins-suspeitos.html"
+      "title":   "AV vs. EDR: Por que um Ataque Fileless Passou pelo Defender e Foi Bloqueado pelo MDE",
+      "date":    "2026-04-05",
+      "tag":     "Purple Team",
+      "excerpt": "Mesmo laboratório, dois hosts Windows 11, resultado completamente diferente. Aqui está o que o Defender padrão não vê — e o que o MDE detecta antes do shellcode executar.",
+      "mitre":   ["T1059.001", "T1620", "T1027", "T1055"],
+      "url":     "posts/defender-suite/av-vs-edr-fileless.html"
     }
-
   ]
 }
 
